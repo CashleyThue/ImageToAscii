@@ -43,7 +43,7 @@ dotnet publish -c Release \
 Output is stored at:
 
 ```text
-bin/Release/net10.0/linux-x64/publish/ImageToAscii
+bin/Release/net10.0/linux-x64/publish/
 ```
 
 ---
@@ -60,7 +60,7 @@ dotnet publish -c Release `
 Output is stored at:
 
 ```text
-bin\Release\net10.0\win-x64\publish\ImageToAscii.exe
+bin/Release/net10.0/publish/
 ```
 
 ---
@@ -83,6 +83,11 @@ dotnet publish -c Release \
 -r osx-arm64 \
 --self-contained true \
 -p:PublishSingleFile=true
+```
+
+Output is stored at:
+```text
+bin/Release/net10.0/publish/
 ```
 
 After publishing, move the executable into your PATH if desired.
