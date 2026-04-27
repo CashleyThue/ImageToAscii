@@ -24,10 +24,8 @@ dotnet restore
 Build and run:
 
 ```bash
-dotnet run -- input.jpg 5 output.txt
+dotnet run -- inputImg scale outputTxt
 ```
-
-(Arguments after `--` are passed to the program.)
 
 ---
 
