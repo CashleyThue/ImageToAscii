@@ -47,7 +47,12 @@ namespace ImageToAscii
                 throw new ArgumentException("Scale too large for image size.");
             
             int width = img.Width; int height = img.Height;
-            img.Mutate(x => x.Resize(width/scale, height/scale));
+            
+            double aspectRatio = 2;
+            
+            img.Mutate(x => x.Resize(
+                width/scale, (int)(height / (scale * aspectRatio))
+                ));
             
             width = img.Width; height = img.Height;
 
