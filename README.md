@@ -1,4 +1,4 @@
-# Image To ASCII (C#)
+# Image To ASCII
 
 Converts images into ASCII art using ImageSharp.
 
@@ -6,7 +6,7 @@ Converts images into ASCII art using ImageSharp.
 ## Build From Source
 
 ### Prerequisites
-Requires .NET 10 SDK (or use published standalone binaries)..
+Requires .NET 10 SDK (or use published standalone binaries available in Releases)
 
 Clone the repository:
 
