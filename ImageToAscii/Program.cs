@@ -1,13 +1,15 @@
-﻿using SixLabors.ImageSharp;
+﻿using System.Text;
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace ImageToAscii
 {
-    class Program
+    static class Program
     {
         static void Main(string[] args)
         {
+            string ramp = @" .'`^"",:;Il!i><~+_-?][}{1)(|\/*tfjrxnuvczXYUJCLQ0OZmwqpdbkhao#MW&8%B@$";
             if (args.Length == 1 && (args[0] == "--help" || args[0] == "-h"))
             {
                 Console.WriteLine("Usage:");
@@ -37,83 +39,46 @@ namespace ImageToAscii
             string inputPath = args[0];
             string outputPath = args[2];
             
-            var img = Image.Load<Rgba32>(inputPath);
+            using var img = Image.Load<Rgba32>(inputPath);
             
-            if (scale <= 0)
-                throw new ArgumentException("Scale must be positive.");
-
-            if (img.Width / scale == 0 || img.Height / scale == 0)
-                throw new ArgumentException("Scale too large for image size.");
-            
-            int width = img.Width; int height = img.Height;
-            
-            double aspectRatio = 2;
-            
-            img.Mutate(x => x.Resize(
-                width/scale, (int)(height / (scale * aspectRatio))
-                ));
-            
-            width = img.Width; height = img.Height;
-
-            string[,] grid = new string[height,width];
-            
-            for (int y = 0; y < height; y++)
+            if (img.Width / scale == 0 ||
+                img.Height / scale == 0)
             {
-                for (int x = 0; x < width; x++)
+                Console.Error.WriteLine(
+                    "Scale too large for image size.");
+                Environment.Exit(1);
+            }
+
+            const double aspectRatio = 2;
+            int originalWidth = img.Width;
+            int originalHeight = img.Height;
+
+            img.Mutate(x => x.Resize(
+                originalWidth / scale,
+                Math.Max(1, (int)(originalHeight / (scale * aspectRatio)))
+            ));
+
+            StringBuilder str = new();
+
+            for (int y = 0; y < img.Height; y++)
+            {
+                for (int x = 0; x < img.Width; x++)
                 {
                     Rgba32 pixel = img[x, y];
-                    
-                    int colorSum = pixel.R + pixel.G + pixel.B;
-                    
-                    switch (colorSum)
-                    {
-                        case 0:
-                            grid[y, x] += '#';
-                            break;
-                        case int n when (0 < n && n <= 100):
-                            grid[y, x] += 'X';
-                            break;
-                        case int n when (100 < n && n <= 200):
-                            grid[y, x] += '%';
-                            break;
-                        case int n when (200 < n && n <= 300):
-                            grid[y, x] += '&';
-                            break;
-                        case int n when (300 < n && n <= 400):
-                            grid[y, x] += '*';
-                            break;
-                        case int n when (400 < n && n <= 500):
-                            grid[y, x] += '+';
-                            break;
-                        case int n when (500 < n && n <= 600):
-                            grid[y, x] += '/';
-                            break;
-                        case int n when (600 < n && n <= 700):
-                            grid[y, x] += '(';
-                            break;
-                        case int n when (700 < n && n <= 750):
-                            grid[y, x] += "'";
-                            break;
-                        default:
-                            grid[y, x] += ' ';
-                            break;
-                    }
-                }
-            }
-            
-            File.WriteAllText(outputPath, "");
-            for (int y = 0; y < height; y++)
-            {
-                string row = "";
 
-                for (int x = 0; x < width; x++)
-                {
-                    row += grid[y, x];
-                }
+                    int gray = (int)(
+                        0.299 * pixel.R +
+                        0.587 * pixel.G +
+                        0.114 * pixel.B
+                    );
 
-                Console.WriteLine(row);
-                File.AppendAllText(outputPath, row + Environment.NewLine);
+                    int i = gray * (ramp.Length - 1) / 255;
+                    
+                    str.Append(ramp[i]);
+                }
+                str.AppendLine();
             }
+            File.WriteAllText(outputPath, str.ToString(), Encoding.UTF8);
         }
     }
 }
